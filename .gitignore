@@ -1,0 +1,10 @@
+.gemini/
+*.log
+.DS_Store
+node_modules/
+temp/
+.tempmediaStorage/
+artifact/
+implementation_plan.md
+task.md
+walkthrough.md
