@@ -59,51 +59,94 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Lightbox Logic
+    // Auto-Discovery Gallery Logic
+    const galleryGrid = document.querySelector('.gallery-grid');
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     const lightboxClose = document.querySelector('.lightbox-close');
     const lightboxCaption = document.querySelector('.lightbox-caption');
     const prevBtn = document.querySelector('.prev');
     const nextBtn = document.querySelector('.next');
-    
-    // Gallery images list (can be expanded)
-    const galleryItems = document.querySelectorAll('.gallery-item img');
+
+    let allImages = [];
     let currentImgIndex = 0;
+
+    // Función para intentar cargar imágenes secuencialmente (gallery-1.png, gallery-2.png, etc.)
+    async function discoverImages() {
+        galleryGrid.innerHTML = ''; // Limpiar galería estática
+        let i = 1;
+        let searching = true;
+
+        while (searching && i <= 50) { // Límite de 50 para evitar bucles infinitos
+            const imgPath = `assets/gallery-${i}.png`;
+            try {
+                const exists = await checkImageExists(imgPath);
+                if (exists) {
+                    allImages.push(imgPath);
+                    
+                    // Solo crear el elemento en el grid si es una de las primeras 3
+                    const item = document.createElement('div');
+                    item.className = 'gallery-item reveal';
+                    if (i > 3) item.style.display = 'none';
+                    
+                    const img = document.createElement('img');
+                    img.src = imgPath;
+                    img.alt = `Enzo Fernández Trío - Imagen ${i}`;
+                    img.loading = 'lazy';
+                    
+                    const index = i - 1;
+                    img.addEventListener('click', () => openLightbox(index));
+                    
+                    item.appendChild(img);
+                    galleryGrid.appendChild(item);
+                    i++;
+                } else {
+                    searching = false;
+                }
+            } catch (e) {
+                searching = false;
+            }
+        }
+    }
+
+    function checkImageExists(url) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = url;
+        });
+    }
 
     const openLightbox = (index) => {
         currentImgIndex = index;
-        lightboxImg.src = galleryItems[currentImgIndex].src;
-        lightboxCaption.textContent = galleryItems[currentImgIndex].alt || `Enzo Fernández Trío - Imagen ${currentImgIndex + 1}`;
+        lightboxImg.src = allImages[currentImgIndex];
+        lightboxCaption.textContent = `Enzo Fernández Trío - Imagen ${currentImgIndex + 1}`;
         lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Prevent scrolling
+        document.body.style.overflow = 'hidden';
     };
-
-    galleryItems.forEach((item, index) => {
-        item.addEventListener('click', () => openLightbox(index));
-    });
 
     const closeLightbox = () => {
         lightbox.classList.remove('active');
         document.body.style.overflow = 'auto';
     };
 
+    const showNext = () => {
+        currentImgIndex = (currentImgIndex + 1) % allImages.length;
+        lightboxImg.src = allImages[currentImgIndex];
+        lightboxCaption.textContent = `Enzo Fernández Trío - Imagen ${currentImgIndex + 1}`;
+    };
+
+    const showPrev = () => {
+        currentImgIndex = (currentImgIndex - 1 + allImages.length) % allImages.length;
+        lightboxImg.src = allImages[currentImgIndex];
+        lightboxCaption.textContent = `Enzo Fernández Trío - Imagen ${currentImgIndex + 1}`;
+    };
+
     lightboxClose.addEventListener('click', closeLightbox);
     lightbox.addEventListener('click', (e) => {
         if (e.target === lightbox) closeLightbox();
     });
-
-    const showNext = () => {
-        currentImgIndex = (currentImgIndex + 1) % galleryItems.length;
-        lightboxImg.src = galleryItems[currentImgIndex].src;
-        lightboxCaption.textContent = galleryItems[currentImgIndex].alt || `Enzo Fernández Trío - Imagen ${currentImgIndex + 1}`;
-    };
-
-    const showPrev = () => {
-        currentImgIndex = (currentImgIndex - 1 + galleryItems.length) % galleryItems.length;
-        lightboxImg.src = galleryItems[currentImgIndex].src;
-        lightboxCaption.textContent = galleryItems[currentImgIndex].alt || `Enzo Fernández Trío - Imagen ${currentImgIndex + 1}`;
-    };
 
     nextBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -115,13 +158,14 @@ document.addEventListener('DOMContentLoaded', () => {
         showPrev();
     });
 
-    // Keyboard support
     document.addEventListener('keydown', (e) => {
         if (!lightbox.classList.contains('active')) return;
         if (e.key === 'Escape') closeLightbox();
         if (e.key === 'ArrowRight') showNext();
         if (e.key === 'ArrowLeft') showPrev();
     });
+
+    discoverImages();
 });
 
 // Keyframes for Nav Links Animation (added via JS to keep CSS clean)
