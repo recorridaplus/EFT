@@ -71,42 +71,69 @@ document.addEventListener('DOMContentLoaded', () => {
     let allImages = [];
     let currentImgIndex = 0;
 
-    // Función para intentar cargar imágenes secuencialmente (gallery-1.png, gallery-2.png, etc.)
+    // Función para intentar cargar imágenes secuencialmente (gallery-1, gallery-2, etc.)
     async function discoverImages() {
-        galleryGrid.innerHTML = ''; // Limpiar galería estática
-        let i = 1;
-        let searching = true;
+        // 1. Cargar imágenes que ya existan en el HTML (fallback)
+        const existingImages = galleryGrid.querySelectorAll('img');
+        existingImages.forEach(img => {
+            if (!allImages.includes(img.src)) {
+                allImages.push(img.src);
+            }
+        });
 
-        while (searching && i <= 50) { // Límite de 50 para evitar bucles infinitos
-            const imgPath = `assets/gallery-${i}.png`;
-            try {
+        // 2. Intentar descubrir más imágenes (empezando desde el siguiente número)
+        let i = allImages.length + 1;
+        let consecutiveFails = 0;
+        const extensions = ['png', 'jpg', 'jpeg', 'webp'];
+        const maxConsecutiveFails = 2;
+
+        console.log("Buscando imágenes adicionales...");
+
+        while (i <= 50 && consecutiveFails < maxConsecutiveFails) {
+            let foundInThisStep = false;
+            
+            for (const ext of extensions) {
+                const imgPath = `assets/gallery-${i}.${ext}`;
                 const exists = await checkImageExists(imgPath);
+                
                 if (exists) {
+                    console.log(`Imagen nueva encontrada: ${imgPath}`);
                     allImages.push(imgPath);
                     
-                    // Solo crear el elemento en el grid si es una de las primeras 3
                     const item = document.createElement('div');
                     item.className = 'gallery-item reveal';
-                    if (i > 3) item.style.display = 'none';
+                    item.style.display = 'none'; // Las nuevas siempre se ocultan en el index
                     
                     const img = document.createElement('img');
                     img.src = imgPath;
-                    img.alt = `Enzo Fernández Trío - Imagen ${i}`;
+                    img.alt = `Enzo Fernández Trío - Imagen ${allImages.length}`;
                     img.loading = 'lazy';
                     
-                    const index = i - 1;
-                    img.addEventListener('click', () => openLightbox(index));
+                    const currentIndex = allImages.length - 1;
+                    img.addEventListener('click', () => openLightbox(currentIndex));
                     
                     item.appendChild(img);
                     galleryGrid.appendChild(item);
-                    i++;
-                } else {
-                    searching = false;
+                    foundInThisStep = true;
+                    consecutiveFails = 0;
+                    break;
                 }
-            } catch (e) {
-                searching = false;
             }
+
+            if (!foundInThisStep) {
+                consecutiveFails++;
+            }
+            i++;
         }
+        
+        // Re-asignar eventos a las imágenes iniciales por si acaso
+        const finalImages = galleryGrid.querySelectorAll('img');
+        finalImages.forEach((img, idx) => {
+            img.style.cursor = 'pointer';
+            img.onclick = () => openLightbox(idx);
+        });
+
+        console.log(`Galería lista. Total: ${allImages.length} imágenes.`);
     }
 
     function checkImageExists(url) {

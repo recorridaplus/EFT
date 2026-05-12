@@ -97,7 +97,16 @@
             <div class="container">
                 <h2 class="section-title text-center">Galería</h2>
                 <div class="gallery-grid">
-                    <!-- Las imágenes se cargan automáticamente desde assets/gallery-X.png -->
+                    <!-- Fallback estático para SEO y carga rápida -->
+                    <div class="gallery-item reveal">
+                        <img src="assets/gallery-1.png" alt="Enzo Fernández Trío - Vivo 1">
+                    </div>
+                    <div class="gallery-item reveal delay-1">
+                        <img src="assets/gallery-2.png" alt="Enzo Fernández Trío - Vivo 2">
+                    </div>
+                    <div class="gallery-item reveal delay-2">
+                        <img src="assets/gallery-3.png" alt="Enzo Fernández Trío - Vivo 3">
+                    </div>
                 </div>
             </div>
         </section>
@@ -140,6 +149,6 @@
         </div>
     </div>
 
-    <script src="main.js?v=1.1"></script>
+    <script src="main.js?v=1.2"></script>
 </body>
 </html>
