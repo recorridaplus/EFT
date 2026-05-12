@@ -179,6 +179,11 @@ nav {
     background-color: #eee;
 }
 
+/* Solo mostrar las primeras 3 imágenes en el index */
+.gallery-item:nth-child(n+4) {
+    display: none;
+}
+
 .gallery-item img {
     width: 100%;
     height: 100%;
