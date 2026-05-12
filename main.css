@@ -95,6 +95,7 @@ nav {
     font-weight: 600;
     text-decoration: none;
     color: #fff;
+    transition: var(--transition-smooth);
 }
 
 .nav-links {
@@ -136,7 +137,7 @@ nav {
     width: 100%;
     height: auto;
     aspect-ratio: 3.5 / 1;
-    min-height: 250px;
+    min-height: 400px; /* Aumentado para móvil */
     background-color: #000;
 }
 
@@ -328,10 +329,25 @@ nav {
         transform: translateX(100%);
         transition: transform 0.5s ease-in;
         z-index: 999;
+        overflow-y: auto;
+        padding-top: 80px;
     }
     
     .nav-links.nav-active {
         transform: translateX(0%);
+    }
+
+    .nav-links a {
+        color: var(--text-primary);
+        font-size: 1.5rem; /* Aumentado */
+        margin: 1rem 0;
+        font-weight: 500;
+    }
+
+    /* Cambio de color del logo cuando el menú está activo o en móvil */
+    .nav-active ~ .logo a, 
+    #main-header.nav-open .logo a {
+        color: var(--text-primary);
     }
     
     .burger {

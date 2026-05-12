@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     burger.addEventListener('click', () => {
         // Toggle Nav
         nav.classList.toggle('nav-active');
+        document.getElementById('main-header').classList.toggle('nav-open');
 
         // Animate Links
         navLinks.forEach((link, index) => {
@@ -45,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Close mobile menu if open
             if (nav.classList.contains('nav-active')) {
                 nav.classList.remove('nav-active');
+                document.getElementById('main-header').classList.remove('nav-open');
                 burger.classList.remove('toggle');
                 navLinks.forEach(link => link.style.animation = '');
             }
